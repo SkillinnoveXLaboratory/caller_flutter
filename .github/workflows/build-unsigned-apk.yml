@@ -1,4 +1,4 @@
-name: Build unsigned Android APK
+name: Build installable Android APK
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ permissions:
   contents: read
 
 jobs:
-  build-unsigned-apk:
-    name: Validate and build unsigned APK
+  build-installable-apk:
+    name: Validate and build installable APK
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -46,15 +46,15 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Build unsigned release APK
+      - name: Build installable release APK
         run: >-
           flutter build apk --release
           --dart-define=API_BASE_URL=https://caller-flutter.onrender.com
 
-      - name: Upload unsigned APK
+      - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: caller-monitor-unsigned-apk
+          name: caller-monitor-installable-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30

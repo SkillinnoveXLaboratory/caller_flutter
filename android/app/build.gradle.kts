@@ -28,8 +28,10 @@ android {
 
     buildTypes {
         release {
-            // Deliberately unsigned. The GitHub workflow uploads this APK as an artifact.
-            // Configure a separate production signing workflow before Play Store release.
+            // A CI/debug certificate makes the APK installable without storing a
+            // private production key in GitHub. Replace this with a protected
+            // release keystore before publishing to Google Play.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
