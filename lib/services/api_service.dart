@@ -13,7 +13,7 @@ class ApiService {
   ApiService({required this.token});
   final String? token;
   static const baseUrl = String.fromEnvironment('API_BASE_URL',
-      defaultValue: 'http://10.0.2.2:3000');
+      defaultValue: 'https://caller-flutter.onrender.com');
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token'
