@@ -769,13 +769,14 @@ class _RecordingsPageState extends State<RecordingsPage> {
                           child: const Text('Choose file'))
                     ])));
     if (proceed != true) return;
-    final result = await FilePicker.platform.pickFiles(type: FileType.audio);
-    if (result?.files.single.path == null || !mounted) return;
+    final files = await FilePicker.pickFiles(type: FileType.audio);
+    if (files.isEmpty || files.single.path == null || !mounted) return;
+    final selectedFile = files.single;
     try {
       await widget.api.uploadRecording(
-          file: File(result!.files.single.path!),
+          file: File(selectedFile.path!),
           callId: callId,
-          name: result.files.single.name);
+          name: selectedFile.name);
       if (mounted) {
         _reload();
         ScaffoldMessenger.of(context).showSnackBar(
