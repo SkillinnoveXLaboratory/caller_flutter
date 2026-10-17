@@ -55,6 +55,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: caller-monitor-unsigned-apk
-          path: build/app/outputs/flutter-apk/app-release-unsigned.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
