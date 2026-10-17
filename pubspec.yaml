@@ -1,0 +1,20 @@
+name: call_monitoring_app
+description: Local-first Flutter call activity and analytics app.
+publish_to: "none"
+version: 1.0.0+1
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  url_launcher: ^6.3.1
+  http: ^1.3.0
+  flutter_secure_storage: ^9.2.4
+  file_picker: ^8.3.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+flutter:
+  uses-material-design: true
