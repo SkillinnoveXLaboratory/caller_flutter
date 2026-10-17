@@ -17,6 +17,7 @@ class SessionGate extends StatefulWidget {
 
 class _SessionGateState extends State<SessionGate> {
   String? _token;
+  bool _restoring = true;
   @override
   void initState() {
     super.initState();
@@ -25,18 +26,28 @@ class _SessionGateState extends State<SessionGate> {
 
   Future<void> _restore() async {
     final token = await _storage.read(key: 'access_token');
-    if (mounted) setState(() => _token = token);
+    if (mounted) {
+      setState(() {
+        _token = token;
+        _restoring = false;
+      });
+    }
   }
 
   @override
-  Widget build(BuildContext context) => _token == null
-      ? AuthScreen(onSignedIn: (token) => setState(() => _token = token))
-      : HomeShell(
-          token: _token!,
-          onSignOut: () async {
-            await _storage.delete(key: 'access_token');
-            if (mounted) setState(() => _token = null);
-          });
+  Widget build(BuildContext context) {
+    if (_restoring) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    return _token == null
+        ? AuthScreen(onSignedIn: (token) => setState(() => _token = token))
+        : HomeShell(
+            token: _token!,
+            onSignOut: () async {
+              await _storage.delete(key: 'access_token');
+              if (mounted) setState(() => _token = null);
+            });
+  }
 }
 
 class AuthScreen extends StatefulWidget {
@@ -175,7 +186,8 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      DashboardPage(api: _api),
+      DashboardPage(
+          api: _api, onOpenCallLogs: () => setState(() => _index = 1)),
       CallsPage(api: _api),
       ContactsPage(api: _api),
       AnalyticsPage(api: _api),
@@ -259,8 +271,10 @@ Widget _callCard(Map<String, dynamic> call) => Card(
         trailing: Text(_duration(call['durationSeconds'] as int))));
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key, required this.api});
+  const DashboardPage(
+      {super.key, required this.api, required this.onOpenCallLogs});
   final ApiService api;
+  final VoidCallback onOpenCallLogs;
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
@@ -309,7 +323,25 @@ class _DashboardPageState extends State<DashboardPage> {
                   Text('Recent activity',
                       style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 8),
-                  ...recent.map(_callCard)
+                  if (recent.isEmpty)
+                    Card(
+                        child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('No call activity yet.'),
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                      'Add your first authorized call log to see activity and reports here.'),
+                                  const SizedBox(height: 12),
+                                  FilledButton.icon(
+                                      onPressed: widget.onOpenCallLogs,
+                                      icon: const Icon(Icons.add_call),
+                                      label: const Text('Open call logs'))
+                                ])))
+                  else
+                    ...recent.map(_callCard)
                 ]));
           }));
 }
@@ -602,6 +634,13 @@ class _ContactsPageState extends State<ContactsPage> {
                   }
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.data!.isEmpty) {
+                    return const Center(
+                        child: Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Text(
+                                'No contacts yet. Use the add-contact button to create one.')));
                   }
                   return ListView(
                       children: snapshot.data!
