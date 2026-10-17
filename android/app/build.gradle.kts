@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.example.call_monitoring_app"
-    compileSdk = flutter.compileSdkVersion
+    // file_picker's Android dependency requires API level 36 or newer.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
